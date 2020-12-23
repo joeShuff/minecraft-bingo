@@ -3,12 +3,22 @@ package com.extremelyd1.listener;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.util.InventoryUtil;
+import net.minecraft.server.v1_16_R3.*;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
+import org.bukkit.craftbukkit.v1_16_R3.CraftLootTable;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.block.CraftChest;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftInventory;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -24,6 +34,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.loot.LootContext;
+
+import java.util.Random;
 
 public class InteractListener implements Listener {
 
@@ -74,6 +87,20 @@ public class InteractListener implements Listener {
                 if (clickedBlock != null) {
                     // Get block state and check if it is a container
                     BlockState blockState = clickedBlock.getState();
+                    if (blockState instanceof Chest) {
+                        Chest chest = (Chest) blockState;
+                        if (chest.getLootTable() != null) {
+                            // There is a loot table still, so the loot has not generated yet
+                            LootContext lootContext = new LootContext.Builder(e.getPlayer().getLocation())
+                                    .build();
+                            chest.getLootTable().fillInventory(
+                                    chest.getInventory(),
+                                    new Random(game.getWorldManager().getWorld().getSeed()),
+                                    lootContext
+                            );
+                        }
+                    }
+
                     if (blockState instanceof Container) {
                         // Create copy of inventory
                         Inventory inventory = InventoryUtil.copyInventory(((Container) blockState).getInventory());
