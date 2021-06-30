@@ -21,7 +21,7 @@ public class WinConditionCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender, false)) {
+        if (!CommandUtil.checkCommandSender(sender, true, true)) {
             return true;
         }
 
@@ -49,6 +49,8 @@ public class WinConditionCommand implements CommandExecutor {
             Bukkit.broadcastMessage(
                     Game.PREFIX + "Full bingo card has been " + ChatColor.GREEN + "enabled"
             );
+
+            game.onPregameUpdate();
 
             return true;
         } else if (args[0].equalsIgnoreCase("lines")) {
@@ -78,7 +80,9 @@ public class WinConditionCommand implements CommandExecutor {
                         ChatColor.DARK_RED + "Error: "
                                 + ChatColor.WHITE + "Number of lines to complete must be "
                                 + ChatColor.BOLD + "between"
-                                + ChatColor.RESET + " 0 and 11"
+                                + ChatColor.RESET + ChatColor.YELLOW + " 0"
+                                + ChatColor.WHITE + " and "
+                                + ChatColor.YELLOW + "11"
                 );
 
                 return true;
@@ -90,6 +94,8 @@ public class WinConditionCommand implements CommandExecutor {
                     Game.PREFIX + "Number of lines (rows, columns or diagonals) to achieve bingo has been set to "
                             + ChatColor.YELLOW + numLines
             );
+
+            game.onPregameUpdate();
 
             return true;
         } else if (args[0].equalsIgnoreCase("lockout")) {
@@ -107,12 +113,15 @@ public class WinConditionCommand implements CommandExecutor {
                 }
             }
 
-            if (completionsToLock < 1) {
+            // Check whether the given value is within bounds
+            if (completionsToLock < 1 || completionsToLock > 8) {
                 sender.sendMessage(
                         ChatColor.DARK_RED + "Error: "
                                 + ChatColor.WHITE + "Lockout completions must be "
-                                + ChatColor.BOLD + "at least"
-                                + ChatColor.RESET + " 1"
+                                + ChatColor.BOLD + "between"
+                                + ChatColor.RESET + ChatColor.YELLOW + " 0"
+                                + ChatColor.WHITE + " and "
+                                + ChatColor.YELLOW + "9"
                 );
 
                 return true;
@@ -133,6 +142,8 @@ public class WinConditionCommand implements CommandExecutor {
             }
 
             Bukkit.broadcastMessage(message);
+
+            game.onPregameUpdate();
 
             return true;
         }

@@ -29,7 +29,7 @@ public class TeamCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender, false)) {
+        if (!CommandUtil.checkCommandSender(sender, true, true)) {
             return true;
         }
 
@@ -210,7 +210,6 @@ public class TeamCommand implements CommandExecutor {
                 teamManager.addPlayerToTeam(argumentPlayer, teamManager.getSpectatorTeam());
         } else {
             sendUsage(sender, command);
-
             return true;
         }
 

@@ -1,5 +1,6 @@
 package com.extremelyd1.config;
 
+import com.extremelyd1.game.progress.ProgressController;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -76,6 +77,11 @@ public class Config {
     private final boolean giveAllRecipes;
 
     /**
+     * Store progression notify config data
+     */
+    private final ProgressController progressController;
+
+    /**
      * Whether a timer is enabled
      */
     private boolean timerEnabled;
@@ -85,17 +91,17 @@ public class Config {
     private long timerLength;
 
     /**
-     * Whether to pregenerate the worlds within the border in advance
+     * Whether to pre-generate the worlds within the border in advance
      */
-    private final boolean pregenerateWorlds;
+    private final boolean preGenerateWorlds;
     /**
      * The number of ticks in between generation cycles
      */
-    private final int pregenerationTicksPerCycle;
+    private final int preGenerationTicksPerCycle;
     /**
      * The number of chunks to generate per cycle
      */
-    private final int pregenerationChunksPerCycle;
+    private final int preGenerationChunksPerCycle;
 
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
@@ -133,6 +139,8 @@ public class Config {
 
         giveAllRecipes = config.getBoolean("give-all-recipes");
 
+        progressController = new ProgressController(config);
+
         borderEnabled = config.getBoolean("border.enable");
         overworldBorderSize = config.getInt("border.overworld-size");
         netherBorderSize = config.getInt("border.nether-size");
@@ -145,11 +153,11 @@ public class Config {
         timerLength = config.getInt("timer.length");
 
         // Only allow pregeneration of worlds if there is the border is enabled
-        pregenerateWorlds = borderEnabled && config.getBoolean("pregeneration-mode.enable");
+        preGenerateWorlds = borderEnabled && config.getBoolean("pregeneration-mode.enable");
 
-        pregenerationTicksPerCycle = config.getInt("pregeneration-mode.ticks-per-cycle");
+        preGenerationTicksPerCycle = config.getInt("pregeneration-mode.ticks-per-cycle");
 
-        pregenerationChunksPerCycle = config.getInt("pregeneration-mode.chunks-per-cycle");
+        preGenerationChunksPerCycle = config.getInt("pregeneration-mode.chunks-per-cycle");
     }
 
     /**
@@ -163,6 +171,10 @@ public class Config {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Default item distribution config value has a non-integer value");
         }
+    }
+
+    public ProgressController getProgressController() {
+        return progressController;
     }
 
     public boolean isBlacklistEnabled() {
@@ -255,15 +267,15 @@ public class Config {
         this.timerLength = timerLength;
     }
 
-    public boolean isPregenerateWorlds() {
-        return pregenerateWorlds;
+    public boolean isPreGenerateWorlds() {
+        return preGenerateWorlds;
     }
 
-    public int getPregenerationTicksPerCycle() {
-        return pregenerationTicksPerCycle;
+    public int getPreGenerationTicksPerCycle() {
+        return preGenerationTicksPerCycle;
     }
 
-    public int getPregenerationChunksPerCycle() {
-        return pregenerationChunksPerCycle;
+    public int getPreGenerationChunksPerCycle() {
+        return preGenerationChunksPerCycle;
     }
 }

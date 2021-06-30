@@ -20,7 +20,7 @@ public class ItemDistributionCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender, false)) {
+        if (!CommandUtil.checkCommandSender(sender, true, true)) {
             return true;
         }
 
@@ -71,6 +71,8 @@ public class ItemDistributionCommand implements CommandExecutor {
                         + numDTierItems + " "
                         + ChatColor.WHITE + "(S, A, B, C, D)"
         );
+
+        game.onPregameUpdate();
 
         return true;
     }

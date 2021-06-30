@@ -1,8 +1,8 @@
 name: MinecraftBingo
-version: 1.4.0
+version: 1.6.0
 main: com.extremelyd1.main.Bingo
 author: Extremelyd1
-api-version: 1.16
+api-version: 1.17
 
 commands:
   team:
@@ -36,7 +36,7 @@ commands:
   wincondition:
     aliases: [wincon]
     description: Command to change win conditions, such as enabling full card mode
-    usage: /<command> <fullCard|numLines>
+    usage: /<command> <full|lines|lockout> [argument]
 
   reroll:
     description: Command to reroll the bingo card
@@ -45,7 +45,7 @@ commands:
   itemdistribution:
     aliases: [itemdist, distribution, dist]
     description: Command to change the item distribution
-    usage: /<command> <S,A,B,C,D>
+    usage: /<command> <S> <A> <B> <C> <D>
 
   timer:
     description: Command to set the max timer length
@@ -61,9 +61,23 @@ commands:
     description: Command to send a message to all players
     usage: /<command> <message>
 
+  teamchat:
+    aliases: [tc]
+    description: Send a message to your team only
+    usage: /<command> <message>
+
   test:
     description: Command to test a new feature
     usage: /<command>
+
+  channel:
+    aliases: [c]
+    description: Change between default chat channels
+    usage: /<command> <team|global>
+
+  join:
+    description: Join a team
+    usage: /<command> <team name>
 
   generate:
     aliases: [worlds, gen]

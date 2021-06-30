@@ -22,7 +22,7 @@ public class TimerCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender, false)) {
+        if (!CommandUtil.checkCommandSender(sender, true, true)) {
             return true;
         }
 
@@ -53,6 +53,8 @@ public class TimerCommand implements CommandExecutor {
                     Game.PREFIX + "Game timer is now " + ChatColor.GREEN + "enabled"
             );
 
+            game.onPregameUpdate();
+
             return true;
         } else if (args[0].equalsIgnoreCase("disable")) {
             game.getConfig().setTimerEnabled(false);
@@ -61,6 +63,8 @@ public class TimerCommand implements CommandExecutor {
                     Game.PREFIX + "Game timer is now " + ChatColor.DARK_RED + "disabled"
             );
 
+            game.onPregameUpdate();
+
             return true;
         }
 
@@ -68,6 +72,9 @@ public class TimerCommand implements CommandExecutor {
         try {
             timerLength = Integer.parseInt(args[0]);
             trySetTimer(sender, timerLength);
+
+            game.onPregameUpdate();
+
             return true;
         } catch (NumberFormatException ignored) {
             // Timer is not specified in a single integer
@@ -87,6 +94,8 @@ public class TimerCommand implements CommandExecutor {
         }
 
         trySetTimer(sender, parsedTime);
+
+        game.onPregameUpdate();
 
         return true;
     }
