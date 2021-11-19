@@ -51,7 +51,7 @@ public class ItemListener implements Listener {
 
     @EventHandler
     public void onPlayerPickupItem(EntityPickupItemEvent e) {
-        if (!game.getState().equals(Game.State.IN_GAME)) {
+        if (game.getState().equals(Game.State.POST_GAME) || (game.getState().equals(Game.State.PRE_GAME) && !e.getEntity().isOp())) {
             e.setCancelled(true);
             return;
         }
