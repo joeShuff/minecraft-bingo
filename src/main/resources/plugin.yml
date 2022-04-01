@@ -21,6 +21,10 @@ commands:
     description: Command to output items left/collected on bingo card
     usage: /<command>
 
+  entities:
+    description: Show all entities
+    usage: /<command>
+
   card:
     description: Command to get a new bingo card if lost
     usage: /<command>
