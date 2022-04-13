@@ -70,3 +70,12 @@ The config file also include two parameters that can tweak/boost the chunk gener
 The `ticks-per-cycle` parameter denotes the time between chunk generation cycles and `chunks-per-cycle` denotes how many chunks it should generate in a single cycle.
 A lower `ticks-per-cycle` and higher `chunks-per-cycle` will require more RAM and processing speed.
 Note that using this feature and increasing these parameters drastically may crash your server. 
+
+## Contributing
+
+To get your local maven dependencies correctly installed. Download [BuildTools](https://www.spigotmc.org/wiki/buildtools/) and run the following commands.
+
+- `java -jar BuildTools.jar --rev 1.18.2 --remapped`
+- `java -jar BuildTools.jar --rev 1.18.2 --remapped --compile craftbukkit`
+
+Then reload the maven projects, and it should all be ok.

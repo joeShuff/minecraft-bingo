@@ -7,7 +7,6 @@ import com.extremelyd1.game.winCondition.WinReason;
 import com.extremelyd1.util.TimeUtil;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.minecraft.server.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
