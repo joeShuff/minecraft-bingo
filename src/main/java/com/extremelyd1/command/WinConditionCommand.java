@@ -7,8 +7,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 
-public class WinConditionCommand implements CommandExecutor {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class WinConditionCommand implements TabExecutor {
 
     /**
      * The game instance
@@ -154,5 +159,24 @@ public class WinConditionCommand implements CommandExecutor {
         );
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+        if (args.length == 1) {
+            return Arrays.asList("full", "lines", "lockout");
+        }
+
+        if (args.length == 2) {
+            if (args[0].equals("lines")) {
+                return Arrays.asList("3");
+            }
+
+            if (args[0].equals("lockout")) {
+                return Arrays.asList("3");
+            }
+        }
+
+        return Collections.emptyList();
     }
 }
