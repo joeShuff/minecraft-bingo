@@ -6,7 +6,7 @@
 
     <groupId>com.extremelyd1</groupId>
     <artifactId>MinecraftBingo</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.2</version>
 
     <repositories>
         <repository>
