@@ -43,19 +43,28 @@ public class StartCommand implements TabExecutor {
         }
 
         if (sender instanceof Player) {
-            boolean allPlayersOnTeam = true;
+            ArrayList<Player> playersNotOnATeam = new ArrayList<Player>();
 
             for (Player p: Bukkit.getOnlinePlayers()) {
                 if (game.getTeamManager().getTeamByPlayer(p) == null) {
-                    p.sendMessage(ChatColor.RED + "You need to select a team!");
-                    allPlayersOnTeam = false;
+                    p.sendMessage(ChatColor.DARK_RED + "WARNING" +
+                            ChatColor.WHITE + ": " +
+                            ChatColor.RED + "An admin tried to start the game but you're not on a team. Please join a team if you wish to participate.");
+                    playersNotOnATeam.add(p);
                 }
             }
 
+            boolean allPlayersOnTeam = playersNotOnATeam.isEmpty();
             boolean confirmedCommand = args.length > 0 && args[0] == "confirm";
 
             if (!allPlayersOnTeam && !confirmedCommand) {
-                sender.sendMessage(ChatColor.RED + "Not all players are on a team. Run /start confirm to continue regardless.");
+                String playerListMessage = "";
+
+                for (Player p: playersNotOnATeam) {
+                    playerListMessage = ChatColor.WHITE + "- " + ChatColor.RED + p.getDisplayName() + "\n";
+                }
+
+                sender.sendMessage(ChatColor.RED + "The following players aren't on a team \n" + playerListMessage + ChatColor.RED + "\nRun /start confirm to continue regardless.");
             } else {
                 game.start((Player) sender);
             }
