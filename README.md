@@ -75,7 +75,11 @@ Note that using this feature and increasing these parameters drastically may cra
 
 To get your local maven dependencies correctly installed. Download [BuildTools](https://www.spigotmc.org/wiki/buildtools/) and run the following commands.
 
-- `java -jar BuildTools.jar --rev 1.18.2 --remapped`
-- `java -jar BuildTools.jar --rev 1.18.2 --remapped --compile craftbukkit`
+- `java -jar BuildTools.jar --rev 1.19 --remapped`
+- `java -jar BuildTools.jar --rev 1.19 --remapped --compile craftbukkit`
 
 Then reload the maven projects, and it should all be ok.
+
+If you want to check, the above commands should have installed the libraries into your local maven repository which is located at:
+- Windows (`C:/Users/<youruser>/.m2/repository`)
+- Linux (`/home/<youruser>/.m2/repository`)
