@@ -10,6 +10,7 @@ import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
 import com.extremelyd1.game.team.TeamManager;
 import com.extremelyd1.game.timer.GameTimer;
+import com.extremelyd1.game.timer.PreGameTimer;
 import com.extremelyd1.game.winCondition.WinConditionChecker;
 import com.extremelyd1.game.winCondition.WinReason;
 import com.extremelyd1.gameboard.GameBoardManager;
@@ -127,6 +128,11 @@ public class Game {
     private GameTimer gameTimer;
 
     /**
+     * Pre game timer
+     */
+    private PreGameTimer preGameTimer;
+
+    /**
      * Chat Channel controller
      */
     private final ChatChannelController chatChannelController;
@@ -138,6 +144,8 @@ public class Game {
         state = State.PRE_GAME;
 
         config = new Config(bingo);
+
+        preGameTimer = new PreGameTimer(this);
 
         worldManager = new WorldManager(this);
 
@@ -156,6 +164,8 @@ public class Game {
         titleManager = new TitleManager();
 
         recipeUtil = new RecipeUtil();
+
+        preGameTimer.runTaskTimer(plugin, 0, 10);
 
         registerListeners(bingo);
         registerCommands(bingo);
@@ -203,6 +213,7 @@ public class Game {
             put("coordinates", new CoordinatesCommand(game));
             put("all", new AllCommand(game));
             put("channel", new ChannelCommand(game));
+            put("entities", new EntitiesCommand());
             put("teamchat", new TeamChatCommand(game));
             put("join", new JoinCommand(game));
 
@@ -248,6 +259,15 @@ public class Game {
 
             return;
         }
+
+        //Join players without teams to spectator
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (teamManager.getTeamByPlayer(p) == null) {
+                teamManager.addPlayerToTeam(p, teamManager.getSpectatorTeam(), true);
+            }
+        }
+
+        preGameTimer.cancel();
 
         // Calculate radius of spawn circle based on whether a border is enabled
         int radius;
@@ -346,13 +366,15 @@ public class Game {
                     // Send sounds
                     soundManager.broadcastStart();
 
-                    if (config.isTimerEnabled()) {
-                        // Start timer
-                        gameTimer = new GameTimer(
-                                plugin,
-                                1,
-                                config.getTimerLength(),
-                                timeLeft -> {
+                    // Start timer
+                    gameTimer = new GameTimer(
+                            plugin,
+                            1,
+                            config.getTimerLength(),
+                            timeLeft -> {
+                                titleManager.sendInGameTabBar(this);
+
+                                if (config.isTimerEnabled()) {
                                     gameBoardManager.onTimeUpdate(timeLeft);
 
                                     if (timeLeft <= 0) {
@@ -363,12 +385,12 @@ public class Game {
                                     } else {
                                         TimeUtil.broadcastTimeLeft(timeLeft);
                                     }
-
-                                    return false;
                                 }
-                        );
-                        gameTimer.start();
-                    }
+
+                                return false;
+                            }
+                    );
+                    gameTimer.start();
                 }
         ).start();
     }
@@ -610,6 +632,14 @@ public class Game {
 
     public void togglePvp() {
         pvpEnabled = !pvpEnabled;
+    }
+
+    public TitleManager getTitleManager() {
+        return titleManager;
+    }
+
+    public GameTimer getGameTimer() {
+        return gameTimer;
     }
 
     public JavaPlugin getPlugin() {

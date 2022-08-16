@@ -68,6 +68,8 @@ public class PlayerJoinLeaveListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e) {
         this.game.onPregameUpdate(Bukkit.getOnlinePlayers().size());
 
+        game.getTitleManager().sendPreGameActionBar(game);
+
         Player player = e.getPlayer();
 
         if (game.getState().equals(Game.State.PRE_GAME)) {
@@ -83,15 +85,17 @@ public class PlayerJoinLeaveListener implements Listener {
         }
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
+        ChatColor teamColor = ChatColor.WHITE;
         if (team == null) {
-            game.getTeamManager().addPlayerToTeam(player, game.getTeamManager().getSpectatorTeam(), false);
-
-            team = game.getTeamManager().getSpectatorTeam();
+//            game.getTeamManager().addPlayerToTeam(player, game.getTeamManager().getSpectatorTeam(), false);
+//            team = game.getTeamManager().getSpectatorTeam();
+        } else {
+            teamColor = team.getColor();
         }
 
         e.setJoinMessage(
                 ChatColor.GREEN + "+ " + ChatColor.RESET
-                        + team.getColor() + player.getName()
+                        + teamColor + player.getName()
                         + ChatColor.WHITE + " joined"
         );
     }

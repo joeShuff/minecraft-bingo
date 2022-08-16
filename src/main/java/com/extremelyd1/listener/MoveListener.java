@@ -20,7 +20,7 @@ public class MoveListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        if (game.getState().equals(Game.State.PRE_GAME) && !game.isMaintenance()) {
+        if (game.getState().equals(Game.State.PRE_GAME) && !game.isMaintenance() && !e.getPlayer().isOp()) {
             // Sanity check
             if (e.getTo() == null) {
                 return;

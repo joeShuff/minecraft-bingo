@@ -20,6 +20,12 @@ public class GameTimer {
      * The time left on this timer in seconds
      */
     private long timeLeft;
+
+    /**
+     * The time this game has been played
+     */
+    private long timePlayed;
+
     /**
      * A functional interface to execute every timer tick
      */
@@ -34,6 +40,7 @@ public class GameTimer {
         this.plugin = plugin;
         this.period = period;
         this.timeLeft = time;
+        this.timePlayed = 0;
         this.timerConsumer = timerConsumer;
     }
 
@@ -48,6 +55,7 @@ public class GameTimer {
                     cancel();
                 }
 
+                timePlayed++;
                 timeLeft--;
             }
         };
@@ -57,6 +65,14 @@ public class GameTimer {
                 0,
                 period * 20
         );
+    }
+
+    public long getTimeLeft() {
+        return timeLeft;
+    }
+
+    public long getTimePlayed() {
+        return timePlayed;
     }
 
     /**

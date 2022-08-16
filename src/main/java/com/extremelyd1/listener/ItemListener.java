@@ -51,19 +51,21 @@ public class ItemListener implements Listener {
 
     @EventHandler
     public void onPlayerPickupItem(EntityPickupItemEvent e) {
-        if (!game.getState().equals(Game.State.IN_GAME)) {
-            e.setCancelled(true);
+        if (!e.getEntity().getType().equals(EntityType.PLAYER)) {
             return;
         }
 
-        if (!e.getEntity().getType().equals(EntityType.PLAYER)) {
+        Player p = (Player) e.getEntity();
+
+        if (game.getState().equals(Game.State.POST_GAME) || (game.getState().equals(Game.State.PRE_GAME) && !p.isOp())) {
+            e.setCancelled(true);
             return;
         }
 
         Material material = e.getItem().getItemStack().getType();
         Player player = (Player) e.getEntity();
 
-        game.onMaterialCollected(player, material);
+        if (game.getState().equals(Game.State.IN_GAME)) game.onMaterialCollected(player, material);
     }
 
     @EventHandler

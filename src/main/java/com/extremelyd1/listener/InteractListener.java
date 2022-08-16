@@ -23,6 +23,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class InteractListener implements Listener {
 
     /**
@@ -36,25 +40,39 @@ public class InteractListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        onBlock(e);
+        Boolean isOp = e.getPlayer().isOp();
+
+        if ((game.getState().equals(Game.State.PRE_GAME) && !isOp) || game.getState().equals(Game.State.POST_GAME)) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-        onBlock(e);
+        Boolean isOp = e.getPlayer().isOp();
+
+        if ((game.getState().equals(Game.State.PRE_GAME) && !isOp) || game.getState().equals(Game.State.POST_GAME)) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onBlockDropItem(BlockDropItemEvent e) {
-        onBlock(e);
+        Boolean isOp = e.getPlayer().isOp();
+
+        if ((game.getState().equals(Game.State.PRE_GAME) && !isOp) || game.getState().equals(Game.State.POST_GAME)) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent e) {
-        onBlock(e);
+        if (game.getState().equals(Game.State.PRE_GAME) || game.getState().equals(Game.State.POST_GAME)) {
+            e.setCancelled(true);
+        }
     }
 
-    public void onBlock(Event e) {
+    public void onBlock(BlockEvent e) {
         if (!game.getState().equals(Game.State.IN_GAME)) {
             if (e instanceof Cancellable) {
                 ((Cancellable) e).setCancelled(true);
@@ -85,7 +103,15 @@ public class InteractListener implements Listener {
             return;
         }
 
-        if (game.getState().equals(Game.State.PRE_GAME)) {
+        List<Action> allowedPreGameOpActions = Arrays.asList(Action.LEFT_CLICK_BLOCK, Action.RIGHT_CLICK_BLOCK);
+        if (allowedPreGameOpActions.contains(action) && game.getState().equals(Game.State.PRE_GAME)) {
+            if (!e.getPlayer().isOp()) {
+                e.setCancelled(true);
+                return;
+            }
+        }
+
+        if (!allowedPreGameOpActions.contains(action) && game.getState().equals(Game.State.PRE_GAME)) {
             e.setCancelled(true);
             return;
         }
@@ -160,6 +186,10 @@ public class InteractListener implements Listener {
         }
 
         Player player = (Player) e.getWhoClicked();
+
+        if (game.getState().equals(Game.State.PRE_GAME) && player.isOp()) {
+            return;
+        }
 
         if (!game.getState().equals(Game.State.IN_GAME)) {
             e.setCancelled(true);
