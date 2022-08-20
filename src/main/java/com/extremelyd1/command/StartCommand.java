@@ -64,7 +64,7 @@ public class StartCommand implements TabExecutor {
                     playerListMessage = ChatColor.WHITE + "- " + ChatColor.RED + p.getDisplayName() + "\n";
                 }
 
-                sender.sendMessage(ChatColor.RED + "The following players aren't on a team \n" + playerListMessage + ChatColor.RED + "\nRun /start confirm to continue regardless.");
+                sender.sendMessage(ChatColor.RED + "The following players aren't on a team \n" + playerListMessage + ChatColor.RED + "\nRun " + ChatColor.WHITE + "/start confirm" + ChatColor.RED + " to continue regardless.");
             } else {
                 game.start((Player) sender);
             }

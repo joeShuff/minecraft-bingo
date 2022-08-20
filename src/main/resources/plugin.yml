@@ -1,5 +1,5 @@
 name: MinecraftBingo
-version: 1.8.0
+version: 1.8.1
 main: com.extremelyd1.main.Bingo
 author: Extremelyd1
 api-version: 1.17
@@ -87,3 +87,8 @@ commands:
     aliases: [worlds, gen]
     description: Pre-generate worlds
     usage: /<command> stop | <start> <numWorlds>
+
+  back:
+    aliases: [back]
+    description: Go back to your death location
+    usage: /<command>
