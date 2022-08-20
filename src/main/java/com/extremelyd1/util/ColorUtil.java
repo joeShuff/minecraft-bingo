@@ -24,6 +24,7 @@ public class ColorUtil {
         put(ChatColor.LIGHT_PURPLE, getFromRgb(255, 85, 255));
         put(ChatColor.YELLOW, getFromRgb(255, 255, 85));
         put(ChatColor.WHITE, getFromRgb(255, 255, 255));
+        put(ChatColor.ITALIC, getFromRgb(202, 202, 202));
     }};
 
     /**

@@ -71,7 +71,7 @@ public class IngameBoard extends GameBoard {
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
 
         if (!team.isSpectatorTeam()) {
-            this.boardEntries.add(new BoardEntry("Number of items collected:"));
+            this.boardEntries.add(new BoardEntry("Items collected:"));
             numItemsEntry = new DynamicBoardEntry<>(ChatColor.AQUA + "  %d", 0);
             this.boardEntries.add(numItemsEntry);
             this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));

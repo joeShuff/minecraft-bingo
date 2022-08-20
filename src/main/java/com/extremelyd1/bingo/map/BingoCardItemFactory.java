@@ -104,7 +104,7 @@ public class BingoCardItemFactory {
      * @return The created ItemStack
      */
     public ItemStack create(BingoCard bingoCard, PlayerTeam team) {
-        return create(bingoCard, team, MAP_BACKGROUND_COLOR);
+        return create(bingoCard, team, ColorUtil.chatColorToInt(team.getColor()));
     }
 
     /**
@@ -165,7 +165,7 @@ public class BingoCardItemFactory {
     }
 
     private BufferedImage drawBingoCardImage(BingoCard bingoCard, PlayerTeam team) {
-        return drawBingoCardImage(bingoCard, team, MAP_BACKGROUND_COLOR);
+        return drawBingoCardImage(bingoCard, team, ColorUtil.chatColorToInt(team.getColor()));
     }
 
     /**

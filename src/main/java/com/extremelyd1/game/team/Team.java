@@ -30,7 +30,7 @@ public class Team {
     protected final boolean isSpectatorTeam;
 
     public Team() {
-        this("Spectators", ChatColor.WHITE, true);
+        this("Spectators", ChatColor.ITALIC, true);
     }
 
     public Team(String name, ChatColor color, boolean isSpectatorTeam) {

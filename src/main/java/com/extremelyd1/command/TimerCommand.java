@@ -8,8 +8,15 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 
-public class TimerCommand implements CommandExecutor {
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.Collections.emptyList;
+
+public class TimerCommand implements TabExecutor {
 
     /**
      * The game instance
@@ -117,5 +124,14 @@ public class TimerCommand implements CommandExecutor {
                 Game.PREFIX + "Max timer length has been set to "
                         + ChatColor.YELLOW + TimeUtil.formatTimeLeft(seconds)
         );
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+        if (args.length == 1) {
+            return Arrays.asList("enable", "disable");
+        }
+
+        return emptyList();
     }
 }
