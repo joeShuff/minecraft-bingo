@@ -87,3 +87,8 @@ commands:
     aliases: [worlds, gen]
     description: Pre-generate worlds
     usage: /<command> stop | <start> <numWorlds>
+
+  back:
+    aliases: [back]
+    description: Go back to your death location
+    usage: /<command>
