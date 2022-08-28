@@ -61,7 +61,7 @@ public class StartCommand implements TabExecutor {
                 String playerListMessage = "";
 
                 for (Player p: playersNotOnATeam) {
-                    playerListMessage = ChatColor.WHITE + "- " + ChatColor.RED + p.getDisplayName() + "\n";
+                    playerListMessage += ChatColor.WHITE + "- " + ChatColor.RED + p.getDisplayName() + "\n";
                 }
 
                 sender.sendMessage(ChatColor.RED + "The following players aren't on a team \n" + playerListMessage + ChatColor.RED + "\nRun " + ChatColor.WHITE + "/start confirm" + ChatColor.RED + " to continue regardless.");

@@ -40,20 +40,14 @@ public class IngameBoard extends GameBoard {
 
         this.objective.setDisplayName(
                 ChatColor.BOLD.toString()
-                        + ChatColor.YELLOW.toString()
-                        + "Minecraft Bingo"
+                        + ChatColor.YELLOW
+                        + "Bingo"
+                        + ChatColor.ITALIC
+                        + formatWinCondition(game.getWinConditionChecker())
         );
 
         int numberOfSpaces = 1;
         this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
-        this.boardEntries.add(new BoardEntry(
-                "Status: " + ChatColor.YELLOW + "In-Game"
-        ));
-
-        this.boardEntries.add(new BoardEntry(
-                "Game type: " + ChatColor.YELLOW + formatWinCondition(game.getWinConditionChecker())
-        ));
-
         if (game.getConfig().isTimerEnabled()) {
             timeLeftEntry = new DynamicBoardEntry<>(
                     "Time left: " + ChatColor.YELLOW + "%s",
