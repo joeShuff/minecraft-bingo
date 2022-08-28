@@ -42,6 +42,9 @@ public class IngameBoard extends GameBoard {
                 ChatColor.BOLD.toString()
                         + ChatColor.YELLOW
                         + "Bingo"
+                        + ChatColor.WHITE
+                        + " - "
+                        + ChatColor.GOLD
                         + ChatColor.ITALIC
                         + formatWinCondition(game.getWinConditionChecker())
         );
