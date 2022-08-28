@@ -1,14 +1,19 @@
 package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.world.biome.BiomeFinderThread;
 import com.extremelyd1.world.generation.PregenerationManager;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
+import org.bukkit.block.Biome;
 import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
+import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -23,14 +28,36 @@ public class WorldManager {
      * The overworld world instance
      */
     private final World world;
+
+    /**
+     * The overworld biome detector thread
+     */
+    private BiomeFinderThread overworldBiomeFinder;
+
     /**
      * The nether world instance
      */
     private final World nether;
+
+    /**
+     * The nether biome detector thread
+     */
+    private BiomeFinderThread netherBiomeFinder;
+
     /**
      * The end world instance
      */
     private final World end;
+
+    /**
+     * Biomes found in the border, if none- border is off
+     */
+    private final List<Biome> foundBiomes = new ArrayList<>();
+
+    /**
+     * Biome detection check task
+     */
+    private BukkitTask threadCheckTask;
 
     /**
      * The pregeneration manager instance
@@ -95,6 +122,47 @@ public class WorldManager {
                 Game.getLogger().info("Setting nether world border...");
                 setWorldBorder(nether);
                 Game.getLogger().info("Nether border set");
+            }
+        }
+
+        if (game.getConfig().isBorderEnabled()) {
+            overworldBiomeFinder = new BiomeFinderThread(world, 10);
+            overworldBiomeFinder.run();
+
+            netherBiomeFinder = new BiomeFinderThread(nether, 4);
+            netherBiomeFinder.run();
+
+            this.threadCheckTask = Bukkit.getScheduler().runTaskTimer(
+                    this.game.getPlugin(),
+                    this::checkBiomeFinder,
+                    0L,
+                    1L
+            );
+        } else {
+            Game.getLogger().info("Not running biome detector as there is no world border...");
+        }
+    }
+
+    private void checkBiomeFinder() {
+        if (overworldBiomeFinder != null) {
+            if (overworldBiomeFinder.isDone()) {
+                foundBiomes.addAll(overworldBiomeFinder.getFoundBiomes());
+                overworldBiomeFinder = null;
+            }
+        }
+
+        if (netherBiomeFinder != null) {
+            if (netherBiomeFinder.isDone()) {
+                Game.getLogger().info("Nether detector complete, adding biomes");
+                foundBiomes.addAll(netherBiomeFinder.getFoundBiomes());
+                netherBiomeFinder = null;
+            }
+        }
+
+        if (overworldBiomeFinder == null && netherBiomeFinder == null) {
+            //Both worlds have been searched, time to cancel the task
+            if (this.threadCheckTask != null) {
+                this.threadCheckTask.cancel();
             }
         }
     }
@@ -273,5 +341,9 @@ public class WorldManager {
 
     public World getEnd() {
         return end;
+    }
+
+    public List<Biome> getFoundBiomes() {
+        return foundBiomes;
     }
 }
