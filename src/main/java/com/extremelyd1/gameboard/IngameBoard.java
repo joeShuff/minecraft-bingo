@@ -50,7 +50,6 @@ public class IngameBoard extends GameBoard {
         );
 
         int numberOfSpaces = 1;
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
         if (game.getConfig().isTimerEnabled()) {
             timeLeftEntry = new DynamicBoardEntry<>(
                     "Time left: " + ChatColor.YELLOW + "%s",
@@ -80,7 +79,7 @@ public class IngameBoard extends GameBoard {
             this.boardEntries.add(new BoardEntry("Leading team:"));
             winningTeamEntry = new DynamicBoardEntry<>("  %s", ChatColor.GRAY + "Tie");
             this.boardEntries.add(winningTeamEntry);
-            this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
+//            this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
         } else {
             winningTeamEntry = null;
         }
