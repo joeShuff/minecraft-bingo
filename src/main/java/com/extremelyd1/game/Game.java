@@ -222,7 +222,7 @@ public class Game {
             put("teamchat", new TeamChatCommand(game));
             put("join", new JoinCommand(game));
             put("back", new BackCommand(game));
-            put("test", new BiomesCommand(game));
+            put("biomes", new BiomesCommand(game));
 
             if (config.isPreGenerateWorlds()) {
                 put("generate", new GenerateCommand(game));

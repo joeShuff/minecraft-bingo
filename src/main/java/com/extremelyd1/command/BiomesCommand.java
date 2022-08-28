@@ -1,6 +1,7 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
@@ -26,10 +27,10 @@ public class BiomesCommand implements TabExecutor {
         if (!(commandSender instanceof Player)) return false;
 
         Player player = ((Player) commandSender);
-        World world = player.getWorld();
 
+        player.sendMessage(ChatColor.BLUE + "The following biomes have been found in this world:");
         for (Biome b: game.getWorldManager().getFoundBiomes()) {
-            player.sendMessage("Biome found " + b.name());
+            player.sendMessage(ChatColor.WHITE + "- " + ChatColor.YELLOW + b.name());
         }
 
         return true;

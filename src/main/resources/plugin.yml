@@ -74,6 +74,10 @@ commands:
     description: Command to test a new feature
     usage: /<command>
 
+  biomes:
+    description: View what biomes have been detected in the world.
+    usage: /<command>
+
   channel:
     aliases: [c]
     description: Change between default chat channels

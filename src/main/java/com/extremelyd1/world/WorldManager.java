@@ -126,7 +126,7 @@ public class WorldManager {
         }
 
         if (game.getConfig().isBorderEnabled()) {
-            overworldBiomeFinder = new BiomeFinderThread(world, 10);
+            overworldBiomeFinder = new BiomeFinderThread(world, 16);
             overworldBiomeFinder.run();
 
             netherBiomeFinder = new BiomeFinderThread(nether, 4);
