@@ -223,6 +223,7 @@ public class Game {
             put("join", new JoinCommand(game));
             put("back", new BackCommand(game));
             put("biomes", new BiomesCommand(game));
+            put("stopbiomedetection", new StopBiomeDetectionCommand(game));
 
             if (config.isPreGenerateWorlds()) {
                 put("generate", new GenerateCommand(game));

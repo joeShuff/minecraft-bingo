@@ -125,35 +125,49 @@ public class WorldManager {
             }
         }
 
-        if (game.getConfig().isBorderEnabled()) {
-            overworldBiomeFinder = new BiomeFinderThread(world, 16);
-            overworldBiomeFinder.run();
+        if (game.getConfig().isBiomeDetectionEnabled()) {
+            if (!game.getConfig().isBorderEnabled()) {
+                Game.getLogger().info("Not running biome detector as no world border");
+            } else {
+                launchWorldBiomeDetector(world);
 
-            netherBiomeFinder = new BiomeFinderThread(nether, 4);
-            netherBiomeFinder.run();
-
-            this.threadCheckTask = Bukkit.getScheduler().runTaskTimer(
-                    this.game.getPlugin(),
-                    this::checkBiomeFinder,
-                    0L,
-                    1L
-            );
+                this.threadCheckTask = Bukkit.getScheduler().runTaskTimer(
+                        this.game.getPlugin(),
+                        () -> {
+                            checkBiomeFinderComplete();
+                            game.onPregameUpdate();
+                        },
+                        0L,
+                        1L
+                );
+            }
         } else {
-            Game.getLogger().info("Not running biome detector as there is no world border...");
+            Game.getLogger().info("Not running biome detector as its disabled");
         }
     }
 
-    private void checkBiomeFinder() {
-        if (overworldBiomeFinder != null) {
+    private void launchWorldBiomeDetector(World world) {
+        overworldBiomeFinder = new BiomeFinderThread(world, 16);
+        overworldBiomeFinder.start();
+    }
+
+    private void launchNetherBiomeDetector(World world) {
+        netherBiomeFinder = new BiomeFinderThread(nether, 4);
+        netherBiomeFinder.start();
+    }
+
+    private void checkBiomeFinderComplete() {
+        if (overworldBiomeDetectionRunning()) {
             if (overworldBiomeFinder.isDone()) {
                 foundBiomes.addAll(overworldBiomeFinder.getFoundBiomes());
                 overworldBiomeFinder = null;
+
+                launchNetherBiomeDetector(nether);
             }
         }
 
-        if (netherBiomeFinder != null) {
+        if (netherBiomeDetectionRunning()) {
             if (netherBiomeFinder.isDone()) {
-                Game.getLogger().info("Nether detector complete, adding biomes");
                 foundBiomes.addAll(netherBiomeFinder.getFoundBiomes());
                 netherBiomeFinder = null;
             }
@@ -161,10 +175,40 @@ public class WorldManager {
 
         if (overworldBiomeFinder == null && netherBiomeFinder == null) {
             //Both worlds have been searched, time to cancel the task
+            Bukkit.broadcastMessage(ChatColor.GREEN + "Biome Detection Complete");
             if (this.threadCheckTask != null) {
                 this.threadCheckTask.cancel();
             }
         }
+    }
+
+    public void stopBiomeDetection() {
+        if (overworldBiomeDetectionRunning()) {
+            overworldBiomeFinder.interrupt();
+        }
+
+        if (netherBiomeDetectionRunning()) {
+            netherBiomeFinder.interrupt();
+        }
+    }
+
+    public int biomeCheckCompletePercent() {
+        int overworldDone = overworldBiomeFinder != null? overworldBiomeFinder.percentageComplete() : 0;
+        int netherDone = netherBiomeFinder != null? netherBiomeFinder.percentageComplete() : 0;
+
+        return (overworldDone + netherDone) / 2;
+    }
+
+    public boolean overworldBiomeDetectionRunning() {
+        return overworldBiomeFinder != null;
+    }
+
+    public boolean netherBiomeDetectionRunning() {
+        return netherBiomeFinder != null;
+    }
+
+    public boolean biomeDetectionRunning() {
+        return overworldBiomeDetectionRunning() || netherBiomeDetectionRunning();
     }
 
     /**

@@ -78,6 +78,11 @@ commands:
     description: View what biomes have been detected in the world.
     usage: /<command>
 
+  stopbiomedetection:
+    aliases: [stopbd]
+    description: Stop biome detection if it is running.
+    usage: /<command>
+
   channel:
     aliases: [c]
     description: Change between default chat channels

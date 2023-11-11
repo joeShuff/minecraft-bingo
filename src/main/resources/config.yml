@@ -1,4 +1,5 @@
 enable-blacklist: True
+biome-detection: False
 default-item-distribution: "2,6,9,6,2"
 default-num-lines-complete-for-win: 1
 show-currently-winning-team: True

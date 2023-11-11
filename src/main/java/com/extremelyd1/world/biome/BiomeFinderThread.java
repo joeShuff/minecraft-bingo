@@ -41,6 +41,10 @@ public class BiomeFinderThread extends Thread {
         return done;
     }
 
+    public int percentageComplete() {
+        return controller.percentageComplete();
+    }
+
     public List<Biome> getFoundBiomes() {
         return controller.getLoadedBiomes();
     }

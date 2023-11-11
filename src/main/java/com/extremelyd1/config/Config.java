@@ -108,6 +108,12 @@ public class Config {
      */
     private final int preGameBorderRadius;
 
+    /**
+     * Whether to detect biomes on plugin start or not. This can be used
+     * to exclude items that aren't possible to get within the border.
+     */
+    private final boolean biomeDetectionEnabled;
+
     public Config(JavaPlugin plugin) throws IllegalArgumentException {
         plugin.saveDefaultConfig();
         
@@ -143,6 +149,8 @@ public class Config {
         showAllMapsPostGame = config.getBoolean("show-all-maps-after-game");
 
         giveAllRecipes = config.getBoolean("give-all-recipes");
+
+        biomeDetectionEnabled = config.getBoolean("biome-detection");
 
         progressController = new ProgressController(config);
 
@@ -288,5 +296,9 @@ public class Config {
 
     public int getPreGameBorderRadius() {
         return preGameBorderRadius;
+    }
+
+    public boolean isBiomeDetectionEnabled() {
+        return biomeDetectionEnabled;
     }
 }

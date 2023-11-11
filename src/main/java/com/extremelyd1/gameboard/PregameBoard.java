@@ -23,6 +23,8 @@ public class PregameBoard extends GameBoard {
 
     private final DynamicBoardEntry<String> gameTypeEntry;
 
+    private final DynamicBoardEntry<String> biomeDetectionEntry;
+
     public PregameBoard(Game game) {
         super(game);
 
@@ -76,7 +78,14 @@ public class PregameBoard extends GameBoard {
                 "-"
         );
         this.boardEntries.add(gameTypeEntry);
-        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces));
+        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
+
+        biomeDetectionEntry = new DynamicBoardEntry<>(
+                "Biome Detection: %s",
+                "Disabled"
+        );
+        this.boardEntries.add(biomeDetectionEntry);
+        this.boardEntries.add(new BlankBoardEntry(numberOfSpaces++));
     }
 
     private String getItemDistributionString(Game game) {
@@ -101,6 +110,22 @@ public class PregameBoard extends GameBoard {
         }
     }
 
+    private String getBiomeDetectionStatus(Game game) {
+        String status;
+
+        if (game.getConfig().isBiomeDetectionEnabled()) {
+            if (game.getWorldManager().biomeDetectionRunning()) {
+                status = "" + ChatColor.GOLD + game.getWorldManager().biomeCheckCompletePercent() + "%";
+            } else {
+                status = ChatColor.GREEN + "Complete";
+            }
+        } else {
+            status = ChatColor.RED + "Disabled";
+        }
+
+        return status;
+    }
+
     /**
      * Updates this board with the new number of players
      * @param numPlayers The new number of players
@@ -109,6 +134,7 @@ public class PregameBoard extends GameBoard {
         numPlayersEntry.setValue(numPlayers);
         currentItemDistribution.setValue(getItemDistributionString(game));
         timerStatus.setValue(getTimerStatus(game));
+        biomeDetectionEntry.setValue(getBiomeDetectionStatus(game));
         gameTypeEntry.setValue(
                 ChatColor.GOLD + formatWinCondition(game.getWinConditionChecker())
         );
