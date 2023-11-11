@@ -6,6 +6,7 @@ notify-other-team-completions: True
 prevent-water-spawns: True
 show-all-maps-after-game: True
 give-all-recipes: True
+freeze-time-on-start: 5
 notify-progress:
   lines:
     - each
@@ -20,12 +21,11 @@ border:
   enable: True
   overworld-size: 3000
   nether-size: 1000
+  override-world-generation: False
 timer:
   enable: True
   length: 1800
 pregeneration-mode:
   enable: False
-  ticks-per-cycle: 100
-  chunks-per-cycle: 200
 pregame:
   border-radius: 20

@@ -1,7 +1,8 @@
 name: MinecraftBingo
-version: 1.8.1
+version: 1.10.0
 main: com.extremelyd1.main.Bingo
 author: Extremelyd1
+load: STARTUP
 api-version: 1.17
 
 commands:

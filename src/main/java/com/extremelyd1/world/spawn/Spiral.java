@@ -3,16 +3,10 @@ package com.extremelyd1.world.spawn;
 import org.bukkit.Location;
 
 public class Spiral {
-
-    /**
-     * The center chunk coords of the spiral
-     */
-    private final ChunkCoords center;
-
     /**
      * The current chunk coords of the spiral
      */
-    private final ChunkCoords currentChunk;
+    private final WorldChunkCoordinate currentChunk;
     /**
      * The current step size
      * How many steps are taking in a direction until the direction is switched
@@ -37,12 +31,10 @@ public class Spiral {
     private int stepCounter;
 
     public Spiral(Location center) {
-        this(new ChunkCoords(center));
+        this(new WorldChunkCoordinate(center));
     }
 
-    public Spiral(ChunkCoords center) {
-        this.center = center;
-
+    public Spiral(WorldChunkCoordinate center) {
         this.currentChunk = center.copy();
         this.stepSize = 1;
         this.direction = Direction.NORTH;
@@ -57,20 +49,17 @@ public class Spiral {
      * Makes a step on the spiral and returns a copy of the resulting chunk coords
      * @return A copy of the resulting chunk coords
      */
-    public ChunkCoords step() {
+    public WorldChunkCoordinate step() {
+        if (this.numIterations == 0) {
+            this.numIterations++;
+            return this.currentChunk;
+        }
+
         switch (direction) {
-            case NORTH:
-                this.currentChunk.add(0, -1);
-                break;
-            case EAST:
-                this.currentChunk.add(1, 0);
-                break;
-            case SOUTH:
-                this.currentChunk.add(0, 1);
-                break;
-            case WEST:
-                this.currentChunk.add(-1, 0);
-                break;
+            case NORTH -> this.currentChunk.add(0, -1);
+            case EAST -> this.currentChunk.add(1, 0);
+            case SOUTH -> this.currentChunk.add(0, 1);
+            case WEST -> this.currentChunk.add(-1, 0);
         }
 
         this.stepCounter++;
@@ -94,10 +83,6 @@ public class Spiral {
         return this.currentChunk;
     }
 
-    public ChunkCoords getCenter() {
-        return center;
-    }
-
     public int getCurrentWidth() {
         return currentWidth;
     }
@@ -112,19 +97,12 @@ public class Spiral {
      * @return The next direction
      */
     private static Direction nextDirection(Direction direction) {
-        switch (direction) {
-            case NORTH:
-                return Direction.EAST;
-            case EAST:
-                return Direction.SOUTH;
-            case SOUTH:
-                return Direction.WEST;
-            case WEST:
-                return Direction.NORTH;
-        }
-
-        // Fallback values just in case
-        return Direction.NORTH;
+        return switch (direction) {
+            case NORTH -> Direction.EAST;
+            case EAST -> Direction.SOUTH;
+            case SOUTH -> Direction.WEST;
+            case WEST -> Direction.NORTH;
+        };
     }
 
     private enum Direction {

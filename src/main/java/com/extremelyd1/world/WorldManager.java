@@ -1,101 +1,125 @@
 package com.extremelyd1.world;
 
 import com.extremelyd1.game.Game;
-import com.extremelyd1.world.generation.PregenerationManager;
-import net.minecraft.world.level.chunk.LevelChunk;
+import com.extremelyd1.world.generation.PreGenerationManager;
+
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.generator.structure.StructureType;
+import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
+import org.bukkit.util.StructureSearchResult;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Random;
 
-public class WorldManager {
+public class WorldManager implements Listener {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
     /**
-     * The overworld world instance
+     * The overworld world instance.
      */
-    private final World world;
+    private World world;
     /**
-     * The nether world instance
+     * The nether world instance.
      */
-    private final World nether;
+    private World nether;
     /**
-     * The end world instance
+     * The end world instance.
      */
-    private final World end;
+    private World end;
 
     /**
-     * The pregeneration manager instance
-     * Only created if config value for pregeneration is true
+     * The pre-generation manager instance.
+     * Only created if config value for pre-generation is true.
      */
-    private PregenerationManager pregenerationManager;
+    private PreGenerationManager preGenerationManager;
 
     public WorldManager(Game game) throws IllegalArgumentException {
         this.game = game;
 
-        this.world = Bukkit.getWorld("world");
-        this.nether = Bukkit.getWorld("world_nether");
-        this.end = Bukkit.getWorld("world_the_end");
+        if (game.getConfig().isBorderEnabled() && game.getConfig().isOverrideWorldGeneration()) {
+            Server server = Bukkit.getServer();
+            CraftServer craftServer = (CraftServer) server;
 
-        if (this.world == null) {
-            throw new IllegalArgumentException("There is no overworld named 'world' loaded, cannot start game");
+            try {
+                Field confField = craftServer.getClass().getDeclaredField("configuration");
+                confField.setAccessible(true);
+
+                YamlConfiguration configuration = (YamlConfiguration) confField.get(craftServer);
+                configuration.set("worlds.world.generator", game.getPlugin().getName());
+                configuration.set("worlds.world_nether.generator", game.getPlugin().getName());
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                Game.getLogger().severe("Could not set generator in Bukkit configuration");
+                e.printStackTrace();
+            }
         }
-
-        initialize();
     }
 
-    /**
-     * Initializes the loaded worlds
-     * Sets the world border in all dimensions
-     */
-    private void initialize() {
-        world.setAutoSave(false);
-        if (nether != null) {
-            nether.setAutoSave(false);
-            nether.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-        }
-        if (end != null) {
-            end.setAutoSave(false);
-            end.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-        }
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent e) {
+        World world = e.getWorld();
 
-        world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-        world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
-        world.setTime(0);
+        if (world.getEnvironment().equals(World.Environment.NORMAL) && this.world == null) {
+            this.world = world;
 
-        // If the server is in pregeneration mode, create manager
-        // and stop further initialization
-        if (this.game.getConfig().isPreGenerateWorlds()) {
-            this.pregenerationManager = new PregenerationManager(this.game);
-            return;
-        }
+            world.setAutoSave(false);
+            world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+            world.setTime(0);
 
-        if (game.getConfig().isBorderEnabled()) {
-            Game.getLogger().info("Setting overworld world border...");
-            setWorldBorder(world);
-            Game.getLogger().info("Overworld border set");
+            // If the server is in pre-generation mode, create manager
+            // and stop further initialization
+            if (this.game.getConfig().isPreGenerateWorlds()) {
+                this.preGenerationManager = new PreGenerationManager(this.game);
+                return;
+            }
 
-            // Set the world spawn location to the world border center
-            // with the Y coordinate as the highest at that location
-            Location spawnLocation = world.getWorldBorder().getCenter();
-            // Increase y by 1 due to block location being at the bottom of the block
-            spawnLocation.setY(world.getHighestBlockYAt(spawnLocation) + 1);
-            world.setSpawnLocation(spawnLocation);
+            if (game.getConfig().isBorderEnabled()) {
+                Game.getLogger().info("Setting overworld world border...");
+                setWorldBorder(world);
+                Game.getLogger().info("Overworld border set");
 
-            if (nether != null) {
+                // Set the world spawn location to the world border center
+                // with the Y coordinate as the highest at that location
+                Location spawnLocation = world.getWorldBorder().getCenter();
+                // Increase y by 1 due to block location being at the bottom of the block
+                spawnLocation.setY(world.getHighestBlockYAt(spawnLocation) + 1);
+                world.setSpawnLocation(spawnLocation);
+            }
+        } else if (world.getEnvironment().equals(World.Environment.NETHER) && this.nether == null) {
+            this.nether = world;
+
+            world.setAutoSave(false);
+            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+
+            if (game.getConfig().isBorderEnabled()) {
                 Game.getLogger().info("Setting nether world border...");
                 setWorldBorder(nether);
                 Game.getLogger().info("Nether border set");
             }
+        } else if (world.getEnvironment().equals(World.Environment.THE_END) && this.end == null) {
+            this.end = world;
+
+            world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        }
+
+        if (!this.game.getGameBoardManager().isInitialized()) {
+            this.game.getGameBoardManager().initialize();
         }
     }
 
@@ -117,7 +141,7 @@ public class WorldManager {
         } else if (world.getEnvironment().equals(World.Environment.NETHER)) {
             setWorldBorder(
                     world,
-                    StructureType.NETHER_FORTRESS,
+                    StructureType.FORTRESS,
                     net.minecraft.world.level.levelgen.structure.StructureType.FORTRESS,
                     3000,
                     this.game.getConfig().getNetherBorderSize()
@@ -141,16 +165,16 @@ public class WorldManager {
             int searchRadius,
             int size
     ) {
-        Game.getLogger().info("Locating structure " + bukkitStructureType + " to determine border center");
+        Game.getLogger().info("Locating structure " + bukkitStructureType.getKey() + " to determine border center");
         // Find the closest structure
-        Location structureLocation = world.locateNearestStructure(
+        StructureSearchResult structureSearchResult = world.locateNearestStructure(
                 new Location(world, 0, 0, 0),
                 bukkitStructureType,
                 searchRadius,
                 false
         );
 
-        if (structureLocation == null) {
+        if (structureSearchResult == null) {
             Game.getLogger().warning("Could not find structure " + bukkitStructureType
                     + " within " + searchRadius
                     + " blocks in world type " + world.getEnvironment()
@@ -159,13 +183,13 @@ public class WorldManager {
         }
 
         // Get the chunk at the structure location and cast to CraftChunk
-        CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureLocation);
+        CraftChunk craftChunk = (CraftChunk) world.getChunkAt(structureSearchResult.getLocation());
 
         // Get the chunk from the reference
-        LevelChunk chunk = craftChunk.getHandle();
+        ChunkAccess chunk = craftChunk.getHandle(ChunkStatus.STRUCTURE_STARTS);
 
         if (chunk == null) {
-            Game.getLogger().warning("Chunk in weak reference is null");
+            Game.getLogger().warning("Chunk access from craft chunk is null");
             return;
         }
 
@@ -240,19 +264,19 @@ public class WorldManager {
     }
 
     /**
-     * Instructs the pregeneration manager to construct the given worlds
+     * Instructs the pre-generation manager to construct the given worlds
      * @param start The start index of the worlds
      * @param numberOfWorlds The number of worlds to create
      */
     public void createWorlds(int start, int numberOfWorlds) {
-        this.pregenerationManager.createWorlds(start, numberOfWorlds);
+        this.preGenerationManager.createWorlds(start, numberOfWorlds);
     }
 
     /**
-     * Instructs the pregeneration manager to stop the pregeneration process
+     * Instructs the pre-generation manager to stop the pre-generation process
      */
-    public void stopPregeneration() {
-        this.pregenerationManager.stop();
+    public void stopPreGeneration() {
+        this.preGenerationManager.stop();
     }
 
     /**

@@ -6,15 +6,14 @@ import com.extremelyd1.util.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static java.util.Collections.emptyList;
 
 public class TimerCommand implements TabExecutor {
 
@@ -127,11 +126,15 @@ public class TimerCommand implements TabExecutor {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!game.getState().equals(Game.State.PRE_GAME)) {
+            return Collections.emptyList();
+        }
+
         if (args.length == 1) {
             return Arrays.asList("enable", "disable");
         }
 
-        return emptyList();
+        return Collections.emptyList();
     }
 }

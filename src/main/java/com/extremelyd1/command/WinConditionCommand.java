@@ -1,14 +1,17 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.game.team.TeamManager;
 import com.extremelyd1.util.CommandUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -119,7 +122,7 @@ public class WinConditionCommand implements TabExecutor {
             }
 
             // Check whether the given value is within bounds
-            if (completionsToLock < 1 || completionsToLock > 8) {
+            if (completionsToLock < 1 || completionsToLock > TeamManager.MAX_TEAMS) {
                 sender.sendMessage(
                         ChatColor.DARK_RED + "Error: "
                                 + ChatColor.WHITE + "Lockout completions must be "
@@ -162,18 +165,36 @@ public class WinConditionCommand implements TabExecutor {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!game.getState().equals(Game.State.PRE_GAME)) {
+            return Collections.emptyList();
+        }
+
         if (args.length == 1) {
             return Arrays.asList("full", "lines", "lockout");
         }
 
         if (args.length == 2) {
-            if (args[0].equals("lines")) {
-                return Arrays.asList("3");
-            }
+            if (args[0].equalsIgnoreCase("lines")) {
+                List<String> numLines = new ArrayList<>();
+                for (int i = 1; i <= 10; i++) {
+                    String s = String.valueOf(i);
+                    if (s.startsWith(args[1])) {
+                        numLines.add(s);
+                    }
+                }
 
-            if (args[0].equals("lockout")) {
-                return Arrays.asList("3");
+                return numLines;
+            } else if (args[0].equalsIgnoreCase("lockout")) {
+                List<String> numCompletions = new ArrayList<>();
+                for (int i = 1; i <= TeamManager.MAX_TEAMS; i++) {
+                    String s = String.valueOf(i);
+                    if (s.startsWith(args[1])) {
+                        numCompletions.add(s);
+                    }
+                }
+
+                return numCompletions;
             }
         }
 
