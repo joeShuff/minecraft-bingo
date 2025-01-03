@@ -29,8 +29,14 @@ jobs:
     - name: Execute Gradle build
       run: ./gradlew build
 
+    # Zip the item_data folder
+    - name: Zip item_data folder
+      run: |
+        zip -r item_data.zip item_data
+
     - name: Upload build
       uses: actions/upload-artifact@v3
       with:
-        name: build-jars
-        path: build/libs/MinecraftBingo-*.jar
+        files: |
+          build/libs/MinecraftBingo-*.jar
+          item_data.zip
