@@ -127,7 +127,4 @@ gradle-app.setting
 .idea/
 
 # Project ignores
-
-item_data/images/**
-!item_data/images/images.zip
 target/*

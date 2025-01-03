@@ -8,7 +8,7 @@ plugins {
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
 }
 
 tasks.assemble {
@@ -16,5 +16,5 @@ tasks.assemble {
 }
 
 group = "com.extremelyd1"
-version = "1.11.0"
+version = "1.11.1"
 description = "MinecraftBingo"
