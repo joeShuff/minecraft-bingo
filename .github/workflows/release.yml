@@ -25,6 +25,13 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      # Find the correct JAR file (excluding "-reobf")
+      - name: Find JAR File
+        id: find_jar
+        run: |
+          JAR_FILE=$(ls build/libs/MinecraftBingo-*.jar | grep -v '-reobf')
+          echo "jar_file=$JAR_FILE" >> $GITHUB_ENV
+
       # Zip the item_data folder
       - name: Zip item_data folder
         run: |
@@ -35,7 +42,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/libs/MinecraftBingo-*.jar
+            ${{ env.jar_file }}
             item_data.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
