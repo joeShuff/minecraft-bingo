@@ -1,22 +1,18 @@
 java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
 plugins {
     `java-library`
-    id("io.papermc.paperweight.userdev") version "1.7.2"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.11"
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
 }
 
-tasks {
-    assemble {
-        dependsOn(reobfJar)
-    }
+tasks.assemble {
+    dependsOn(tasks.reobfJar)
 }
 
 group = "com.extremelyd1"
