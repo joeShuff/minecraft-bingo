@@ -37,6 +37,11 @@ jobs:
     - name: Upload build
       uses: actions/upload-artifact@v3
       with:
-        files: |
-          build/libs/MinecraftBingo-*.jar
-          item_data.zip
+        name: build-jars
+        path: build/libs/MinecraftBingo-*.jar
+
+    - name: Upload assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: item_data
+        path: item_data.zip
