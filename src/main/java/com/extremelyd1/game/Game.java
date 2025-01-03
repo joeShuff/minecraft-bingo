@@ -178,6 +178,7 @@ public class Game {
 
     /**
      * Register all event listeners
+     *
      * @param plugin The plugin instance to register the listeners to
      */
     private void registerListeners(JavaPlugin plugin) {
@@ -200,6 +201,7 @@ public class Game {
 
     /**
      * Register all commands
+     *
      * @param plugin The plugin instance to register the commands to
      */
     private void registerCommands(JavaPlugin plugin) {
@@ -250,6 +252,7 @@ public class Game {
 
     /**
      * Starts the game
+     *
      * @param player The player that started the game, or null if no player started the game
      */
     public void start(Player player) {
@@ -305,7 +308,8 @@ public class Game {
 
     /**
      * Callback method for when spawns are loaded.
-     * @param player The player that issued the game start, which resulted in loading spawns.
+     *
+     * @param player    The player that issued the game start, which resulted in loading spawns.
      * @param locations The locations of the spawns.
      */
     private void onSpawnsLoaded(Player player, List<Location> locations) {
@@ -385,12 +389,15 @@ public class Game {
         // Send sounds
         soundManager.broadcastStart();
 
-            // Start timer
-            gameTimer = new GameTimer(
-                    plugin,
-                    1,
-                    config.getTimerLength(),
-                    timeLeft -> {
+        // Start timer
+        gameTimer = new GameTimer(
+                plugin,
+                1,
+                config.getTimerLength(),
+                timeLeft -> {
+                    titleManager.sendInGameTabBar(this);
+
+                    if (config.isTimerEnabled()) {
                         gameBoardManager.onTimeUpdate(timeLeft);
 
                         if (timeLeft <= 0) {
@@ -401,15 +408,17 @@ public class Game {
                         } else {
                             TimeUtil.broadcastTimeLeft(timeLeft);
                         }
-
-                        return false;
                     }
-            );
-            gameTimer.start();
+
+                    return false;
+                }
+        );
+        gameTimer.start();
     }
 
     /**
      * Ends the game with a win reason
+     *
      * @param winReason The reason for the game to end
      */
     public void end(WinReason winReason) {
@@ -532,6 +541,7 @@ public class Game {
     /**
      * Called if the pregame state is updated
      * Updates the game board scoreboard
+     *
      * @param numOnlinePlayers The number of online players used to update
      */
     public void onPregameUpdate(int numOnlinePlayers) {
@@ -541,7 +551,8 @@ public class Game {
     /**
      * When a material is collected by a player
      * Updates the bingo card of the player's team and ends the game if a card is completed
-     * @param player The player that has collected the material
+     *
+     * @param player   The player that has collected the material
      * @param material The material that is collected
      */
     public void onMaterialCollected(Player player, Material material) {
