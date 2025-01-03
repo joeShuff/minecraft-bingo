@@ -1,0 +1,41 @@
+name: Build and Release Minecraft Plugin
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers workflow only on version tags
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up Java
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17' # Adjust Java version if necessary
+
+      # Build the plugin with Gradle
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # Zip the item_data folder
+      - name: Zip item_data folder
+        run: |
+          zip -r item_data.zip item_data
+
+      # Upload build artifacts to the release
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/libs/MinecraftBingo-*.jar
+            item_data.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
