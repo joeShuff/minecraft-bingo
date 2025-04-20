@@ -22,33 +22,23 @@ import com.extremelyd1.title.TitleManager;
 import com.extremelyd1.util.*;
 import com.extremelyd1.world.WorldManager;
 import com.extremelyd1.world.spawn.SpawnLoader;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.PluginCommand;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Game {
-
-    /**
-     * The prefix string
-     */
-    public static final String PREFIX = ChatColor.BOLD.toString() + ChatColor.BLUE + "BINGO " + ChatColor.RESET;
-    /**
-     * The divider string
-     */
-    private static final String DIVIDER = PREFIX + ChatColor.STRIKETHROUGH
-            + "                                                                        ";
-
     /**
      * The plugin instance
      */
@@ -115,7 +105,7 @@ public class Game {
     /**
      * Whether PvP is enabled
      */
-    private boolean pvpEnabled = false;
+    private boolean pvpDisabled = true;
 
     /**
      * The bingo card that is currently used
@@ -155,7 +145,7 @@ public class Game {
         worldManager = new WorldManager(this);
 
         gameBoardManager = new GameBoardManager(this);
-        teamManager = new TeamManager(this);
+        teamManager = new TeamManager();
 
         bingoCardItemFactory = new BingoCardItemFactory(this);
         bingoItemMaterials = new BingoItemMaterials(this);
@@ -184,11 +174,11 @@ public class Game {
     private void registerListeners(JavaPlugin plugin) {
         Bukkit.getPluginManager().registerEvents(this.worldManager, plugin);
         Bukkit.getPluginManager().registerEvents(new PlayerJoinLeaveListener(this), plugin);
-        Bukkit.getPluginManager().registerEvents(new ItemListener(this), plugin);
+        Bukkit.getPluginManager().registerEvents(new ItemListener(this, bingoCardItemFactory), plugin);
         Bukkit.getPluginManager().registerEvents(new ChatListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new MotdListener(this), plugin);
-        Bukkit.getPluginManager().registerEvents(new DeathListener(this), plugin);
-        Bukkit.getPluginManager().registerEvents(new InteractListener(this), plugin);
+        Bukkit.getPluginManager().registerEvents(new DeathListener(this, bingoCardItemFactory), plugin);
+        Bukkit.getPluginManager().registerEvents(new InteractListener(this, bingoCardItemFactory), plugin);
         Bukkit.getPluginManager().registerEvents(new DamageListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new FoodListener(this), plugin);
         Bukkit.getPluginManager().registerEvents(new MoveListener(this), plugin);
@@ -200,47 +190,44 @@ public class Game {
     }
 
     /**
-     * Register all commands
-     *
-     * @param plugin The plugin instance to register the commands to
+     * Register all commands.
+     * @param plugin The plugin instance to register the commands to.
      */
+    @SuppressWarnings("UnstableApiUsage")
     private void registerCommands(JavaPlugin plugin) {
-        final Game game = this;
-        final Map<String, CommandExecutor> executors = new HashMap<>() {{
-            put("team", new TeamCommand(game));
-            put("start", new StartCommand(game));
-            put("end", new EndCommand(game));
-            put("bingo", new BingoCommand(game));
-            put("card", new CardCommand(game));
-            put("pvp", new PvpCommand(game));
-            put("maintenance", new MaintenanceCommand(game));
-            put("wincondition", new WinConditionCommand(game));
-            put("reroll", new RerollCommand(game));
-            put("itemdistribution", new ItemDistributionCommand(game));
-            put("timer", new TimerCommand(game));
-            put("coordinates", new CoordinatesCommand(game));
-            put("all", new AllCommand(game));
-            put("channel", new ChannelCommand(game));
-            put("entities", new EntitiesCommand());
-            put("teamchat", new TeamChatCommand(game));
-            put("join", new JoinCommand(game));
-            put("back", new BackCommand(game));
+        plugin.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            final Game game = this;
+            final Map<String[], BasicCommand> commands = new HashMap<>() {{
+                put(new String[] {"team"}, new TeamCommand(game));
+                put(new String[] {"start"}, new StartCommand(game));
+                put(new String[] {"end"}, new EndCommand(game));
+                put(new String[] {"bingo"}, new BingoCommand(game));
+                put(new String[] {"card"}, new CardCommand(game, bingoCardItemFactory));
+                put(new String[] {"pvp"}, new PvpCommand(game));
+                put(new String[] {"maintenance"}, new MaintenanceCommand(game));
+                put(new String[] {"wincondition", "wincon"}, new WinConditionCommand(game));
+                put(new String[] {"reroll"}, new RerollCommand(game));
+                put(new String[] {"itemdistribution", "itemdist", "distribution", "dist"}, new ItemDistributionCommand(game));
+                put(new String[] {"timer"}, new TimerCommand(game));
+                put(new String[] {"coordinates", "coord", "coords"}, new CoordinatesCommand(game));
+                put(new String[] {"all", "a", "g", "global"}, new AllCommand(game));
+                put(new String[] {"channel", "c"}, new ChannelCommand(game));
+                put(new String[] {"teamchat", "tc"}, new TeamChatCommand(game));
+                put(new String[] {"join"}, new JoinCommand(game));
 
-            if (config.isPreGenerateWorlds()) {
-                put("generate", new GenerateCommand(game));
-            } else {
-                put("generate", new DisabledCommand());
-            }
-        }};
+                if (config.isPreGenerateWorlds()) {
+                    put(new String[] {"generate", "gen"}, new GenerateCommand(game));
+                } else {
+                    put(new String[] {"generate", "gen"}, new DisabledCommand());
+                }
+            }};
 
-        for (String cmdName : executors.keySet()) {
-            PluginCommand command = plugin.getCommand(cmdName);
-            if (command != null) {
-                command.setExecutor(executors.get(cmdName));
-            } else {
-                throw new IllegalStateException("Command " + cmdName + " could not be registered");
+            for (Map.Entry<String[], BasicCommand> entry : commands.entrySet()) {
+                for (String commandName : entry.getKey()) {
+                    event.registrar().register(commandName, entry.getValue());
+                }
             }
-        }
+        });
     }
 
     /**
@@ -261,9 +248,11 @@ public class Game {
             getLogger().warning("No teams have been selected, cannot start game");
 
             if (player != null) {
-                player.sendMessage(
-                        ChatColor.DARK_RED + "Error: "
-                                + ChatColor.WHITE + "No teams have been selected, cannot start game"
+                player.sendMessage(ChatUtil.errorPrefix()
+                        .append(Component
+                                .text("No teams have been selected, cannot start game")
+                                .color(NamedTextColor.WHITE)
+                        )
                 );
             }
 
@@ -297,8 +286,11 @@ public class Game {
         );
 
         if (player != null) {
-            player.sendMessage(
-                    Game.PREFIX + "Preparing spawn locations for teams..."
+            player.sendMessage(ChatUtil.waitPrefix()
+                    .append(Component
+                            .text("Preparing spawn locations for teams...")
+                            .color(NamedTextColor.WHITE)
+                    )
             );
         }
 
@@ -314,12 +306,18 @@ public class Game {
      */
     private void onSpawnsLoaded(Player player, List<Location> locations) {
         if (player != null) {
-            player.sendMessage(
-                    Game.PREFIX + "Spawn locations found, starting game"
+            player.sendMessage(ChatUtil.successPrefix()
+                    .append(Component
+                            .text("Spawn locations found, starting game")
+                            .color(NamedTextColor.WHITE)
+                    )
             );
         }
 
         this.state = State.IN_GAME;
+
+        // Clear previously created bingo cards
+        bingoCardItemFactory.clearCreatedBingoCards();
 
         // Create random bingo card
         bingoCard = new BingoCard(bingoItemMaterials.pickMaterials(), winConditionChecker.getCompletionsToLock());
@@ -337,10 +335,11 @@ public class Game {
 
                 int freezeTimeOnStart = config.getFreezeTimeOnStart();
                 if (freezeTimeOnStart > 0) {
+                    Objects.requireNonNull(teamPlayer.getAttribute(Attribute.MOVEMENT_SPEED)).setBaseValue(0);
+                    Objects.requireNonNull(teamPlayer.getAttribute(Attribute.JUMP_STRENGTH)).setBaseValue(0);
+
                     teamPlayer.addPotionEffect(PotionEffects.BLINDNESS.withDuration(freezeTimeOnStart * 20));
                     teamPlayer.addPotionEffect(PotionEffects.DARKNESS.withDuration(freezeTimeOnStart * 20));
-                    teamPlayer.addPotionEffect(PotionEffects.SLOWNESS.withDuration(freezeTimeOnStart * 20));
-                    teamPlayer.addPotionEffect(PotionEffects.JUMP_BOOST.withDuration(freezeTimeOnStart * 20));
                 }
 
                 teamPlayer.teleport(location);
@@ -365,6 +364,27 @@ public class Game {
             }
         }
 
+        int freezeTimeOnStart = config.getFreezeTimeOnStart();
+        if (freezeTimeOnStart > 0) {
+            // If there is a freeze time on start, we schedule a task to run after the freeze time is over to reset
+            // the players' movement speed and jump strength to normal
+            Bukkit.getScheduler().runTaskLater(getPlugin(), () -> {
+                for (PlayerTeam team : teamManager.getActiveTeams()) {
+                    for (Player teamPlayer : team.getPlayers()) {
+                        AttributeInstance moveSpeedAttr = teamPlayer.getAttribute(Attribute.MOVEMENT_SPEED);
+                        if (moveSpeedAttr != null) {
+                            moveSpeedAttr.setBaseValue(0.10000000149011612);
+                        }
+
+                        AttributeInstance jumpStrengthAttr = teamPlayer.getAttribute(Attribute.JUMP_STRENGTH);
+                        if (jumpStrengthAttr != null) {
+                            jumpStrengthAttr.setBaseValue(0.41999998688697815);
+                        }
+                    }
+                }
+            }, freezeTimeOnStart * 20L);
+        }
+
         for (Player spectatorPlayer : teamManager.getSpectatorTeam().getPlayers()) {
             spectatorPlayer.setGameMode(GameMode.SPECTATOR);
         }
@@ -380,10 +400,15 @@ public class Game {
         gameBoardManager.broadcast();
 
         // Broadcast start message
-        Bukkit.broadcastMessage(
-                DIVIDER + "\n"
-                        + PREFIX + "                           Game has started!\n"
-                        + DIVIDER
+        Bukkit.broadcast(
+                ChatUtil.divider()
+                        .append(Component.newline())
+                        .append(Component
+                                .text(" ".repeat(28) + "Game has started!")
+                                .color(NamedTextColor.WHITE)
+                        )
+                        .append(Component.newline())
+                        .append(ChatUtil.divider())
         );
 
         // Send sounds
@@ -422,28 +447,32 @@ public class Game {
      * @param winReason The reason for the game to end
      */
     public void end(WinReason winReason) {
-        String message = DIVIDER + "\n" + PREFIX;
+        Component message = ChatUtil.divider().append(Component.newline());
 
-        switch (winReason.getReason()) {
-            case COMPLETE:
+        message = switch (winReason.getReason()) {
+            case COMPLETE -> {
                 PlayerTeam team = winReason.getTeam();
-                message += "                     " + team.getColor() + team.getName()
-                        + ChatColor.WHITE + " team "
-                        + "has gotten bingo!";
-                break;
-            case RANDOM_TIE:
-                // Don't do anything with ties yet
-                message += "                      Game has ended in a tie!";
-                break;
-            case NO_WINNER:
-            default:
-                message += "                            Game has ended!";
-                break;
-        }
+                yield message.append(Component
+                        .text(" ".repeat(21) + team.getName())
+                        .color(team.getColor())
+                ).append(Component
+                        .text(" team has gotten bingo!")
+                        .color(NamedTextColor.WHITE)
+                );
+            }
+            case RANDOM_TIE -> message.append(Component
+                            .text(" ".repeat(22) + "Game has ended in a tie!")
+                            .color(NamedTextColor.WHITE)
+                    );
+            default -> message.append(Component
+                    .text(" ".repeat(30) + "Game has ended!")
+                    .color(NamedTextColor.WHITE)
+            );
+        };
 
-        message += "\n" + DIVIDER;
+        message = message.append(Component.newline()).append(ChatUtil.divider());
 
-        Bukkit.broadcastMessage(message);
+        Bukkit.broadcast(message);
 
         titleManager.sendEndTitle(winReason);
 
@@ -463,13 +492,13 @@ public class Game {
                 ItemStack bingoCardItemStack = bingoCardItemFactory.create(
                         bingoCard,
                         team,
-                        ColorUtil.chatColorToInt(team.getColor())
+                        ColorUtil.textColorToInt(team.getColor())
                 );
 
                 // Change the item name to include team name and color
                 ItemMeta meta = bingoCardItemStack.getItemMeta();
                 if (meta != null) {
-                    meta.setDisplayName(team.getColor() + team.getName() + " Team");
+                    meta.customName(Component.text(team.getName() + " Team").color(team.getColor()));
                 }
                 bingoCardItemStack.setItemMeta(meta);
 
@@ -483,6 +512,7 @@ public class Game {
                 // Set own bingo card in offhand if player has a team
                 Team team = teamManager.getTeamByPlayer(onlinePlayer);
                 if (team != null && !team.isSpectatorTeam()) {
+                    //noinspection SuspiciousMethodCalls
                     onlinePlayer.getInventory().setItemInOffHand(
                             bingoCardItemStacks.get(team)
                     );
@@ -571,11 +601,16 @@ public class Game {
 
             if (config.notifyOtherTeamCompletions()) {
                 // Broadcast a message of this collection
-                Bukkit.broadcastMessage(
-                        PREFIX +
-                                collectorTeam.getColor() + collectorTeam.getName()
-                                + ChatColor.WHITE + " team has obtained "
-                                + ChatColor.AQUA + StringUtil.formatMaterialName(material)
+                Bukkit.broadcast(Component
+                        .text(collectorTeam.getName())
+                        .color(collectorTeam.getColor())
+                        .append(Component
+                                .text(" team has obtained ")
+                                .color(NamedTextColor.WHITE))
+                        .append(Component
+                                .text(ChatUtil.formatMaterialName(material))
+                                .color(NamedTextColor.AQUA)
+                        )
                 );
             }
 
@@ -605,7 +640,7 @@ public class Game {
                 soundManager.broadcastItemCollected(collectorTeam);
             } else if (winners.size() == 1) {
                 // If there is a single winner, we can announce it
-                end(new WinReason(winners.get(0), WinReason.Reason.COMPLETE));
+                end(new WinReason(winners.getFirst(), WinReason.Reason.COMPLETE));
             } else {
                 // Otherwise, end the game with a random tie
                 end(new WinReason(
@@ -652,8 +687,8 @@ public class Game {
         maintenance = !maintenance;
     }
 
-    public boolean isPvpEnabled() {
-        return pvpEnabled;
+    public boolean isPvpDisabled() {
+        return pvpDisabled;
     }
 
     public BingoCard getBingoCard() {
@@ -661,7 +696,7 @@ public class Game {
     }
 
     public void togglePvp() {
-        pvpEnabled = !pvpEnabled;
+        pvpDisabled = !pvpDisabled;
     }
 
     public TitleManager getTitleManager() {

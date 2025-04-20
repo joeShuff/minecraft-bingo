@@ -1,26 +1,27 @@
 package com.extremelyd1.command;
 
 import com.extremelyd1.game.Game;
+import com.extremelyd1.util.ChatUtil;
 import com.extremelyd1.util.CommandUtil;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static java.util.Collections.emptyList;
-
-public class StartCommand implements TabExecutor {
+@SuppressWarnings("UnstableApiUsage")
+public class StartCommand implements BasicCommand {
 
     /**
-     * The game instance
+     * The game instance.
      */
     private final Game game;
 
@@ -29,18 +30,20 @@ public class StartCommand implements TabExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (!CommandUtil.checkCommandSender(sender, true, true)) {
-            return true;
+    public void execute(@NotNull CommandSourceStack commandSourceStack, String @NotNull [] args) {
+        if (!CommandUtil.checkCommandSender(commandSourceStack, true, true)) {
+            return;
         }
 
-        if (game.getState().equals(Game.State.IN_GAME)) {
-            sender.sendMessage(
-                    ChatColor.DARK_RED + "Error: "
-                            + ChatColor.WHITE + "cannot start game, it already has been started"
-            );
+        CommandSender sender = commandSourceStack.getSender();
 
-            return true;
+        if (game.getState().equals(Game.State.IN_GAME)) {
+            sender.sendMessage(ChatUtil.errorPrefix().append(Component
+                    .text("Cannot start game, it has already been started")
+                    .color(NamedTextColor.WHITE)
+            ));
+
+            return;
         }
 
         if (sender instanceof Player) {
@@ -72,8 +75,6 @@ public class StartCommand implements TabExecutor {
         } else {
             game.start();
         }
-
-        return true;
     }
 
 

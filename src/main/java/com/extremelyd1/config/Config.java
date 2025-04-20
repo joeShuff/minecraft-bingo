@@ -60,10 +60,10 @@ public class Config {
      */
     private final int netherBorderSize;
     /**
-     * Whether to override world generation when using pre-generated maps to prevent lag from chunks outside the
-     * world border.
+     * Whether to override world generation when using pre-generated maps to prevent lag from generating chunks
+     * outside the world border.
      */
-    private final boolean overrideWorldGeneration;
+    private final boolean generateEmptyChunks;
 
     /**
      * Whether to prevent teams from spawning in water
@@ -152,7 +152,7 @@ public class Config {
         borderEnabled = config.getBoolean("border.enable");
         overworldBorderSize = config.getInt("border.overworld-size");
         netherBorderSize = config.getInt("border.nether-size");
-        overrideWorldGeneration = config.getBoolean("border.override-world-generation");
+        generateEmptyChunks = config.getBoolean("border.generation.empty-chunks-outside-border");
 
         if (overworldBorderSize < netherBorderSize) {
             throw new IllegalArgumentException("Nether border should be at most as large as the overworld border size");
@@ -168,7 +168,7 @@ public class Config {
     }
 
     /**
-     * Parse the given string value to an integer or throw a exception if not possible
+     * Parse the given string value to an integer or throw an exception if not possible
      * @param stringValue The string value to parse
      * @return The parsed integer value
      */
@@ -262,8 +262,8 @@ public class Config {
         return netherBorderSize;
     }
 
-    public boolean isOverrideWorldGeneration() {
-        return overrideWorldGeneration;
+    public boolean shouldGenerateEmptyChunks() {
+        return generateEmptyChunks;
     }
 
     public boolean isTimerEnabled() {

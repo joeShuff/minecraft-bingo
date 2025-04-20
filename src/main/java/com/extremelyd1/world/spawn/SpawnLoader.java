@@ -2,7 +2,6 @@ package com.extremelyd1.world.spawn;
 
 import com.extremelyd1.game.Game;
 import com.extremelyd1.world.WorldManager;
-import com.extremelyd1.world.platform.Environment;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -134,8 +133,7 @@ public class SpawnLoader implements Listener {
                 try {
                     thread.join();
                 } catch (InterruptedException e) {
-                    Game.getLogger().warning("Could not join spawn find thread");
-                    e.printStackTrace();
+                    Game.getLogger().warning("Could not join spawn find thread, exception:\n%s".formatted(e));
                 }
 
                 // Remove this thread from the set of threads that we iterate over each time
@@ -168,7 +166,7 @@ public class SpawnLoader implements Listener {
             int chunkZ = (int) Math.floor(location.getZ() / 16);
 
             // Request the chunk to be loaded with a callback
-            Environment.getChunkAtAsync(world, chunkX, chunkZ, false).thenAccept(this::onChunkLoad);
+            world.getChunkAtAsync(chunkX, chunkZ, false).thenAccept(this::onChunkLoad);
         }
     }
 

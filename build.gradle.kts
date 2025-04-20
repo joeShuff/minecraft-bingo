@@ -4,11 +4,11 @@ java {
 
 plugins {
     `java-library`
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.11"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.16"
 }
 
 dependencies {
-    paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
 }
 
 tasks.assemble {
@@ -16,5 +16,5 @@ tasks.assemble {
 }
 
 group = "com.extremelyd1"
-version = "1.11.1"
+version = "1.12.0"
 description = "MinecraftBingo"
