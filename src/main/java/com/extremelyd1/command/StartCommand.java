@@ -11,12 +11,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
+
 @SuppressWarnings("UnstableApiUsage")
 public class StartCommand implements BasicCommand {
 
@@ -79,7 +84,7 @@ public class StartCommand implements BasicCommand {
 
 
     @Override
-    public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] args) {
+    public Collection<String> suggest(CommandSourceStack commandSourceStack, String[] args) {
         if (args.length == 1) {
             return Arrays.asList("confirm");
         }

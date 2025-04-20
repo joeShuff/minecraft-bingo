@@ -16,5 +16,5 @@ tasks.assemble {
 }
 
 group = "com.extremelyd1"
-version = "1.12.0"
+version = "1.12.1"
 description = "MinecraftBingo"

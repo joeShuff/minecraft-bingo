@@ -207,7 +207,7 @@ public class InteractListener implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (!(e.getWhoClicked() instanceof Player player)) {
+        if (!(e.getWhoClicked() instanceof Player)) {
             return;
         }
 

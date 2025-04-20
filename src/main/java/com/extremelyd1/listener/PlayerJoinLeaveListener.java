@@ -3,6 +3,7 @@ package com.extremelyd1.listener;
 import com.extremelyd1.game.Game;
 import com.extremelyd1.game.team.PlayerTeam;
 import com.extremelyd1.game.team.Team;
+import com.extremelyd1.util.ColorUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
@@ -93,7 +94,7 @@ public class PlayerJoinLeaveListener implements Listener {
         }
 
         Team team = game.getTeamManager().getTeamByPlayer(player);
-        ChatColor teamColor = ChatColor.WHITE;
+        NamedTextColor teamColor = NamedTextColor.WHITE;
         if (team == null) {
 //            game.getTeamManager().addPlayerToTeam(player, game.getTeamManager().getSpectatorTeam(), false);
 //            team = game.getTeamManager().getSpectatorTeam();
