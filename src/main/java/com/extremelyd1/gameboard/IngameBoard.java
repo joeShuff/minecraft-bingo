@@ -84,7 +84,7 @@ public class IngameBoard extends GameBoard {
 
         if (!team.isSpectatorTeam()) {
             new BoardEntry(Component
-                    .text("Number of items collected:")
+                    .text("Items collected:")
             );
             numItemsEntry = new DynamicBoardEntry<>(Component
                     .text("  " + DynamicBoardEntry.replacePlaceholder)
